@@ -16,7 +16,7 @@ if "session_id" not in st.session_state:
 
 with st.sidebar:
     st.header("Settings")
-    st.write(f"Session-ID:\n{st.session_state.session_id.split("-")[0]}...")
+    st.write(f"Session-ID:\n{st.session_state.session_id.split('-')[0]}...")    
     st.markdown("---")
     st.write("Delete your data when finished")
 

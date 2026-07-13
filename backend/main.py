@@ -85,7 +85,7 @@ async def ask_question(query: QueryModel):
         user_db_path = CHROMA_PATH / query.session_id
 
         if not user_db_path.exists():
-            return {"LLM response": "Please upload a PDF first!"}
+            return {"LLM_response": "Please upload a PDF first!"}
         #load chromaDB with same embedding model as before
         db = Chroma(persist_directory=str(user_db_path), embedding_function=embeddings)
 
