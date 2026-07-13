@@ -5,6 +5,7 @@ You can access the deployed tool under: http://51.21.194.93:8501
 
 ## System Architecture
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': { 'background': '#ffffff'}}}%%
 flowchart TD
     User(("User\n(Browser)"))
     
@@ -23,7 +24,7 @@ flowchart TD
     GroqCloud(("Groq Cloud API\n(Llama 3 LLM)"))
 
     %% Connections and Data Flow
-    User -- "1. Upload PDF and Ask Question\n(Port 8501)" --> FE
+    User -- "1. Upload PDF & Ask Question\n(Port 8501)" --> FE
     
     FE -- "2. HTTP POST Request\n(incl. Session ID)" --> BE
     
