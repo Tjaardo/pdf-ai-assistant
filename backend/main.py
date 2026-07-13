@@ -1,7 +1,7 @@
 import os
 import shutil
 from pathlib import Path
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
@@ -29,14 +29,18 @@ CHROMA_PATH = base_dir / "chroma_db"
 
 class QueryModel(BaseModel):
     question: str
+    session_id: str
+
+class ClearModel(BaseModel):
+    session_id: str
 
 #API endpoints
 @app.get("/")
 async def read_root():
-    return {"message": "Welcome to this project!"}
+    return {"message": "Welcome!"}
 
 @app.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
+async def upload_document(file: UploadFile = File(...), session_id: str = Form(...)):
     try:
         #save pdf locally (temporarily)
         temp_file_path = f"temp_{file.filename}"
@@ -54,11 +58,13 @@ async def upload_document(file: UploadFile = File(...)):
         )
         chunks = text_spitter.split_documents(documents)
 
+        user_db_path = CHROMA_PATH / session_id
+
         #create and save embeddings in ChromaDB
         db = Chroma.from_documents(
             documents=chunks,
             embedding=embeddings,
-            persist_directory=str(CHROMA_PATH)
+            persist_directory=str(user_db_path)
         )
 
         os.remove(temp_file_path)
@@ -76,8 +82,12 @@ async def upload_document(file: UploadFile = File(...)):
 @app.post("/ask")
 async def ask_question(query: QueryModel):
     try:
+        user_db_path = CHROMA_PATH / query.session_id
+
+        if not user_db_path.exists():
+            return {"LLM response": "Please upload a PDF first!"}
         #load chromaDB with same embedding model as before
-        db = Chroma(persist_directory=str(CHROMA_PATH), embedding_function=embeddings)
+        db = Chroma(persist_directory=str(user_db_path), embedding_function=embeddings)
 
         #search db for top 3 similar chunks in pdf
         results = db.similarity_search(query.question, k=3)
@@ -112,3 +122,14 @@ async def ask_question(query: QueryModel):
         }
     except Exception as e:
         return {"ERROR": f"No connection to Groq: {str(e)}"}
+    
+@app.post("/clear")
+async def clear_session(data: ClearModel):
+    #delete db for this specific user
+    try:
+        user_db_path = CHROMA_PATH / data.session_id
+        if user_db_path.exists():
+            shutil.rmtree(user_db_path)
+            return{"status": "deleted successfully"}
+    except Exception as e:
+        return{"ERROR": f"could not delete memory: {str(e)}"}
