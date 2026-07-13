@@ -1,6 +1,8 @@
 # PDF AI Assistant
 This is a small RAG-based assistant system. You upload a PDF and ask questions concerning the content. An LLM gives precise responses that are purely based on the context of the uploaded document.
 
+You can access the deployed tool under: http://51.21.194.93:8501
+
 ## Tech Stack
 Frontend:
   - Streamlit (UI)
