@@ -58,7 +58,7 @@ Frontend:
 
 Backend:
   - FastAPI (RESTful API)
-  - LangChain (Integration)
+  - LangChain (orchestration)
   - ChromaDB (Vector database)
   - Groq API (LLM: llama-3.3-70b-versatile)
   - HuggingFace (Embeddings: all-MiniLM-L6-v2)
